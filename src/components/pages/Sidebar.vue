@@ -11,9 +11,9 @@
         <template v-slot:activator="{ props }">
           <v-btn text v-bind="props" class="mx-3">
             <v-avatar size="32">
-              <!-- <img :src="getAvatarUrl()" alt="Avatar"> -->
-            </v-avatar>
-            <span>Hola</span>
+  <v-icon>mdi-account-lock</v-icon> <!-- Icono de usuario con candado -->
+</v-avatar>
+            {{username}}
           </v-btn>
         </template>
         <v-list>
@@ -30,23 +30,23 @@
       <div class="text-center mt-5">
         <v-btn fab color="#E3F2FD" x-large>
           <v-avatar size="32">
-            <!-- <img :src="getAvatarUrl()" alt="Avatar"> -->
-          </v-avatar>
+  <v-icon>mdi-security</v-icon> <!-- Icono de control y seguridad -->
+</v-avatar>
         </v-btn>
       </div>
 
       <!-- Menú con opciones -->
       <v-list dense>
+        <v-list-item v-if="isAdmin">
+    <router-link to="/roleAndPermissions" class="config-link">
+      <v-list-item-icon>
+        <v-icon>mdi-cog</v-icon>
+      </v-list-item-icon>
+      <v-list-item-title>Roles y permisos</v-list-item-title>
+    </router-link>
+  </v-list-item>
     <v-list-item>
-      <router-link to="/roleAndPermissions" class="config-link">
-        <v-list-item-icon>
-          <v-icon>mdi-cog</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>Roles y permisos</v-list-item-title>
-      </router-link>
-    </v-list-item>
-    <v-list-item>
-      <router-link to="/users" class="config-link">
+      <router-link to="/users" class="config-link"  v-if="isPermissionEnabled('gestion usuarios')">
         <v-list-item-icon>
           <v-icon>mdi-account</v-icon>
         </v-list-item-icon>
@@ -54,7 +54,7 @@
       </router-link>
     </v-list-item>
     <v-list-item>
-      <router-link to="/configuraciones" class="config-link">
+      <router-link to="/configuraciones" class="config-link"  v-if="isPermissionEnabled('modulo 2')">
         <v-list-item-icon>
           <v-icon>mdi-view-dashboard</v-icon>
         </v-list-item-icon>
@@ -67,6 +67,7 @@
 </template>
 
 <script>
+import RoleAndPermission from '../../actions/roleAndPermissions';
 export default {
   name: 'Sidebar',
   data() {
@@ -74,16 +75,35 @@ export default {
       darkMode: false,
       drawer: false,
       groupOpen: false,
+      username:localStorage.getItem('user'),
+      permissions: [],
+      showRoleAndPermissionsTab: false,
     };
   },
   methods: {
-   /*  toggleDarkMode() {
-      this.darkMode = !this.darkMode;
-    }, */
-    navigateTo(page) {
-      // Aquí puedes agregar la lógica para navegar a la página deseada
-      console.log(`Navigating to ${page}`);
+    fetchRoleAndPermissions() {
+      const id = localStorage.getItem('role_id');
+      RoleAndPermission.getRolePermission(id)
+       .then((response) => {
+         this.permissions = response;
+        })
     },
+    isPermissionEnabled(name) {
+      const permission = this.permissions.find(
+        (permission) => permission.name === name,
+      );
+      return permission && permission.state;
+    },
+  },
+  computed: {
+    // Paso 1: Definir la propiedad computada
+    isAdmin() {
+      const roleName = localStorage.getItem('role_name');
+      return roleName === 'administrador';
+    },
+  },
+  mounted() {
+    this.fetchRoleAndPermissions();
   },
 };
 </script>

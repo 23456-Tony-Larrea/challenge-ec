@@ -10,7 +10,8 @@ export function login(email,password){
       .then(data=>{
         console.log(data);
         localStorage.setItem('user',data.data.name);
-        localStorage.setItem('user',data.data.role_name);
+        localStorage.setItem('role_name',data.data.role_name);
+        localStorage.setItem('role_id',data.data.role_id);
         Swal.fire({
               position: 'center',
               icon: 'success',

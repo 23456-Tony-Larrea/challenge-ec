@@ -24,14 +24,6 @@
           </template>
           <span>Editar rol</span>
         </v-tooltip>
-        <v-tooltip top>
-          <template v-slot:activator="{ on }">
-            <v-btn color="error" icon v-on="on" @click="deleteRole(role.id)">
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
-          </template>
-          <span>Eliminar rol</span>
-        </v-tooltip>
       </v-list-item-action>
     </v-list-item>
   </v-list>
@@ -49,30 +41,28 @@
         </v-col>
             
         <v-dialog v-model="dialog" max-width="500">
-      <v-card>
-      <v-card-title class="teal darken-2 white--text">Roles</v-card-title>
-      <v-card-text>
-              <v-form action="">
-  <v-container>
-                  <v-row>
-                      <input hidden v-model="roles.id">
-                  
-                      <v-col cols="12" md="4">
-                              <v-text-field v-model="roles.name" label="Nombre" required>{{roles.name}}</v-text-field>
-                      </v-col>
-                  </v-row>
-              </v-container>
-              </v-form>
-              </v-card-text>         
-       <v-card-actions>  
-           <v-spacer></v-spacer>
-              <v-btn color="green darken-1" text @click="saveRole()">Guardar</v-btn>
-              <v-btn color="red darken-1" type="submit" text @click="dialog = false">Cancelar</v-btn>
-      </v-card-actions>         
-              
-      </v-card>
-  
-      </v-dialog>  
+  <v-card>
+    <v-card-title class="teal darken-2 white--text">Roles</v-card-title>
+    <v-card-text>
+      <v-form action="">
+        <v-container>
+          <v-row>
+            <input hidden v-model="roles.id">
+            <v-col cols="12" md="4">
+              <!-- Elimina la interpolación {{roles.name}} de aquí -->
+              <v-text-field v-model="roles.name" label="Nombre" required></v-text-field>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-form>
+    </v-card-text>         
+    <v-card-actions>  
+      <v-spacer></v-spacer>
+      <v-btn color="green darken-1" text @click="saveRole()">Guardar</v-btn>
+      <v-btn color="red darken-1" type="submit" text @click="dialog = false">Cancelar</v-btn>
+    </v-card-actions>         
+  </v-card>
+</v-dialog>  
       </v-row>
     </v-container>
   </template>
@@ -167,8 +157,7 @@ export default {
       return {
         id: permission.id,
         name: permission.name,
-        // Asegúrate de acceder correctamente al estado desde el objeto pivot
-        Newstate: permission.pivot.state // Aquí se accede al estado desde el objeto pivot
+        newState: permission.state,
       };
     });
   }
@@ -184,10 +173,10 @@ export default {
           newState: newState,
         };
       }
+      this.$toast.success('Permiso actualizado correctamente');
       return permission;
     });
-    this.$toaster.success('El rol a sido actualizado con exito');
-  },
+   },
     }
   }
   </script>
