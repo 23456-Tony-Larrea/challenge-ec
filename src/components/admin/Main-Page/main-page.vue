@@ -7,8 +7,9 @@
         <v-container>
           <v-row>
             <v-col cols="12">
-              <h1 class="welcome-message">Bienvenido a Medi-web, te saludamos, <span class="highlighted-username">hola</span></h1>
-              <p class="tagline">Descubre en la web tu camino hacia una vida plena y saludable.</p>
+              <h1 class="welcome-message">Bienvenido a App-control, te saludamos, <span class="highlighted-username"> 
+              {{username}}
+              </span></h1>
             </v-col>
           </v-row>
         </v-container>
@@ -24,7 +25,13 @@
     components: {
      Sidebar
     },
+    data() {
+    return{
+      username:localStorage.getItem('user')
+    }
+    }
   };
+  
   </script>
   
   <style scoped>

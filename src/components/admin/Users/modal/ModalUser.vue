@@ -2,37 +2,43 @@
     <v-dialog v-model="dialog" persistent max-width="600px">
       <v-card>
         <v-card-title>
-          <span class="headline">Agregar Nuevo Usuario</span>
-        </v-card-title>
+        <span class="headline">{{ isEditMode ? 'Editar Usuario' : isViewMode ? 'Ver Usuario' : 'Agregar Nuevo Usuario' }}</span>
+      </v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="12">
+              <v-col cols="12" sm="6">
     <v-text-field
       label="Cédula"
-      v-model="user.identity"
+      v-model="user.cedula"
       :readonly="readOnly"
       @blur="validateCedula"
       maxlength="10"
     ></v-text-field>
-    <span v-if="!isValidCedula && user.identity" style="color: red;">Cédula no válida</span>
+    <span v-if="!isValidCedula && user.cedula" style="color: red;">Cédula no válida</span>
   </v-col>
-
-              <v-col cols="12" sm="6">
-                <v-text-field label="Nombre" v-model="user.firstName" :readonly="readOnly"></v-text-field>
+  <v-col cols="12" sm="6">
+    <v-text-field
+  label="Correo electrónico"
+  v-model="user.email"
+  :rules="emailRules"
+  required
+></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
-                <v-text-field label="Apellido" v-model="user.lastName" :readonly="readOnly"></v-text-field>
+                <v-text-field label="Nombre" v-model="user.name" :readonly="readOnly"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field label="Apellido" v-model="user.apellidos" :readonly="readOnly"></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field label="Fecha de Nacimiento" v-model="user.birthDate" type="date" :readonly="readOnly"></v-text-field>
+                <v-text-field label="Fecha de Nacimiento" v-model="user.fecha_nacimiento" type="date" :readonly="readOnly"></v-text-field>
               </v-col>
               <v-col cols="12"  sm="6">
-                <v-select :items="civilStatusOptions" label="Estado Civil" v-model="user.civilStatus" :readonly="readOnly"></v-select>
+                <v-select :items="civilStatusOptions" label="Estado Civil" v-model="user.estado_civil" :readonly="readOnly"></v-select>
               </v-col>
-              
               <v-col cols="12"  sm="6">
-                <v-select :items="rolesOptions" label="Rol" v-model="user.roles" :readonly="readOnly"></v-select>
+                <v-select :items="rolesOptions" label="Rol" v-model="user.role_name" :readonly="readOnly"></v-select>
               </v-col>
               <v-col>
   <label for="map" style="display: block; margin-bottom: 10px;">Elige ubicación</label>
@@ -51,6 +57,7 @@
   </template>
   
   <script>
+  import users from '../../../../actions/users'
   import L from 'leaflet';
   import 'leaflet/dist/leaflet.css'
   export default {
@@ -58,26 +65,68 @@
     return {
       dialog: false,
       user: {
-        firstName: '',
-        identity: '',
-        lastName: '',
-        birthDate: '',
-        civilStatus: '',
-        role: '',
+        name: '',
+        cedula: '',
+        apellidos: '',
+        fecha_nacimiento: '',
+        estado_civil: '',
+        role_name: '',
       },
+      emailRules: [
+      v => !!v || 'El correo electrónico es requerido',
+      v => /.+@.+\..+/.test(v) || 'El correo electrónico debe ser válido',
+    ],
+      isEditMode: false,
       civilStatusOptions: ['Casado', 'Soltero', 'Divorciado', 'Viudo'],
-      rolesOptions: ['Administrador', 'Usuario', 'Invitado'],
+      selectedRole: null, // Asegúrate de que esto coincida con el tipo esperado por tu lógica
+      rolesOptions: ['administrador', 'operador'],
+
       readOnly: false,
       isValidCedula: true,
     };
   },
   methods: {
     saveUser() {
-      // Lógica para guardar el usuario
-      console.log(JSON.stringify(this.user, null, 2)); // La ubicación ya está incluida directamente en el objeto del usuario
-      this.close();
-    },
-    close() {
+
+  // Asegúrate de que todos los campos necesarios estén correctamente mapeados
+  const userData = {
+    id: this.user.id, // Asume que 'id' se usa para verificar si es una edición
+    name:this.user.name, 
+    cedula: this.user.cedula,
+    email: this.user.email,
+    nombres: this.user.name,
+    apellidos: this.user.apellidos,
+    fecha_nacimiento: this.user.fecha_nacimiento,
+    estado_civil: this.user.estado_civil,
+    latitud: this.user.latitud,
+    longitud: this.user.longitud,
+    role_name: this.user.role_name, // Asegúrate de que 'role.name' sea el campo correcto
+  };
+
+  if (this.user.id) {
+    // Edición de usuario
+    users.edit(userData)
+      .then(() => {
+        this.$emit('user-updated');
+        this.close();
+        this.$emit('userAdded');
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  } else {
+    // Creación de nuevo usuario
+    users.createUser(userData)
+      .then(() => {
+        this.$emit('user-created');
+        this.close();
+        this.$emit('userAdded');
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+},close() {
       this.dialog = false;
     },
     open() {
@@ -105,13 +154,28 @@
       });
     },
     props: {
-    readOnly: {
+      user: {
+      type: Object,
+      default: () => ({}),
+    },
+    isViewMode: {
       type: Boolean,
       default: false,
     },
   },
+  watch: {
+    user: {
+      handler(newVal) {
+        if (this.isViewMode) {
+          this.fillFormWithUserData(newVal);
+        }
+      },
+      deep: true,
+      immediate: true,
+    },
+  },
   validateCedula() {
-      const cedula = this.user.identity;
+      const cedula = this.user.cedula;
       if (cedula.length === 10) {
         let tercerDigito = parseInt(cedula.substring(2, 3));
         if (tercerDigito < 6) {

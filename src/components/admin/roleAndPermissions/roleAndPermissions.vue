@@ -42,7 +42,7 @@
               <v-list-item v-for="permission in rolePermissions" :key="permission.id"> 
     <v-list-item-content>{{ permission.name }}</v-list-item-content> 
     <v-list-item-action> 
-      <v-switch v-model="permission.state" color="primary" @change="updatePermissionState(permission.id, permission.state)"/>
+      <v-switch v-model="permission.newState" color="primary" @change="updatePermissionState(permission.id, permission.newState)"/>
     </v-list-item-action> 
   </v-list-item> 
           </v-list> 
@@ -98,7 +98,7 @@ export default {
         selectedRoleId: null,
       rolePermissions: [], 
       selectedRoleName: '',
-      state:Boolean,
+      newState:Boolean,
       roleName:''
     };
     },
@@ -158,29 +158,30 @@ export default {
     },
   
     async getRolePermissions(id) {
-    const selectedRole = this.listRoles.find(role => role.id === id); 
-    if (selectedRole) {
-      this.selectedRoleName = selectedRole.name; 
-      this.selectedRoleId = id; 
-      this.rolePermissions = await RoleAndPermission.getRolePermission(id); 
-      this.rolePermissions = this.rolePermissions.map((permission) => {
-        return {
-          id: permission.id,
-          name: permission.name,
-          state:permission.state
-        };
-      });
-    }
-  },
+  const selectedRole = this.listRoles.find(role => role.id === id);
+  if (selectedRole) {
+    this.selectedRoleName = selectedRole.name;
+    this.selectedRoleId = id;
+    this.rolePermissions = await RoleAndPermission.getRolePermission(id);
+    this.rolePermissions = this.rolePermissions.map((permission) => {
+      return {
+        id: permission.id,
+        name: permission.name,
+        // Asegúrate de acceder correctamente al estado desde el objeto pivot
+        Newstate: permission.pivot.state // Aquí se accede al estado desde el objeto pivot
+      };
+    });
+  }
+},
   
   
-  async updatePermissionState(permissionId, state) {
-    RoleAndPermission.updateStateRole( this.selectedRoleId,permissionId,state);
+  async updatePermissionState(permissionId, newState) {
+    RoleAndPermission.updateStateRole( this.selectedRoleId,permissionId,newState);
     this.rolePermissions = this.rolePermissions.map((permission) => {
       if (permission.id === permissionId) {
         return {
           ...permission,
-          state: state,
+          newState: newState,
         };
       }
       return permission;

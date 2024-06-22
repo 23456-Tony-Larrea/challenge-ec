@@ -1,46 +1,37 @@
 import http from '../pluggins/axios';
 import Swal from 'sweetalert2';
 import router from '../router/router'
-export function login(name,password){
+export function login(email,password){
         let json={
-        "name":name,
+        "email":email,
         "password":password
       };
-      http.post('/login',json)
+      http.post('/users-login',json)
       .then(data=>{
-        //console.log(data);
-       /*  Swal.fire({
+        console.log(data);
+        localStorage.setItem('user',data.data.name);
+        localStorage.setItem('user',data.data.role_name);
+        Swal.fire({
               position: 'center',
               icon: 'success',
               title: 'Bienvenido',
               showConfirmButton: false,
               timer: 1500
-            }) */
+            })
           router.push('/mainpage')
     }).catch(e=>{
-        console.log(e);
-        router.push('/mainpage')
-
-        /*  if(e.response.data.message=="User not found."){
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Usuario no encontrado',
-            })
-          }
-          else if(e.response.data.message=="Contraseña inválida."){
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Contraseña incorrecta',
-            })
-          }
-          else if (e.response.data.message=="Eres rol paciente, no se te ha asignado ningún perfil."){
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Eres rol paciente, no se te ha asignado ningún perfil.',
-            })
-          } */
+        if(e.response.data.message=="Unauthorized"){
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Usuario o Contraseña incorrectos',
+          })
+        }else  if(e.response.status==400){
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Usuario no encontrado',
+          })
+        }
     }) 
 }

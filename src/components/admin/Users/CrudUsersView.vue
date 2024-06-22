@@ -28,14 +28,14 @@
           </template>
         </v-data-table>
       </v-card>
-      <!-- Asegúrate de agregar el atributo ref aquí -->
-      <AddUserModal ref="addUserModal" />
+      <AddUserModal ref="addUserModal" @userAdded="fetchUsers" />
     </v-container>
   </template>
   
   <script>
     import Sidebar from '../../pages/Sidebar.vue'
   import AddUserModal from './modal/ModalUser.vue';
+  import users from '../../../actions/users'
   
   export default {
     components: {
@@ -46,34 +46,56 @@
       openAddUserModal() {
         this.$refs.addUserModal.open();
       },
-      editUser(user) {
-        // Lógica para editar usuario
-        console.log('Editando usuario', user);
-      },
-      deleteUser(user) {
+      editUser(user) 
+      {
+        this.$refs.addUserModal.open();
+        this.$refs.addUserModal.readOnly = false;
+        this.$refs.addUserModal.isEditMode = true;
+        this.$refs.addUserModal.isViewMode = false;
+        this.$refs.addUserModal.user = user;
+        },
+      async deleteUser (user) {
         // Lógica para eliminar usuario
-        console.log('Eliminando usuario', user);
+        const deleteUserModal = await users.deleteUser(user.id);
+        if (deleteUserModal) {
+          this.$refs.addUserModal.close();
+          this.fetchUsers();
+        }
+        this.$refs.addUserModal.close();
       },
       viewUser(user) {
-  this.$refs.addUserModal.open();
-  this.$refs.addUserModal.readOnly = true;
- }
+    this.$refs.addUserModal.open();
+    this.$refs.addUserModal.readOnly = true;
+    this.$refs.addUserModal.isViewMode = true;
+    this.$refs.addUserModal.user = user;
+  },
+ async fetchUsers() {
+  const response = await users.show();
+  this.users = response;
+},
+    },
+    mounted() {
+      this.fetchUsers();
     },
     data() {
       return {
         headers: [
-          { text: 'Cédula', value: 'id' },
-          { text: 'Nombres', value: 'firstName' },
-          { text: 'Apellidos', value: 'lastName' },
-          { text: 'Fecha de Nacimiento', value: 'birthDate' },
-          { text: 'Estado Civil', value: 'civilStatus' },
+          { text: 'Cédula', value: 'cedula' },
+          { text: 'Nombres', value: 'nombres' },
+          { text: 'Apellidos', value: 'apellidos' },
+          { text: 'Fecha de Nacimiento', value: 'fecha_nacimiento' },
+          { text: 'Estado Civil', value: 'estado_civil' },
+          { text: 'email', value: 'email' },
+          { text: 'Teléfono', value: 'telefono' },
+          { text: 'Dirección', value: 'direccion' },
+          { text: 'Rol', value: 'role.name' },
+          { text: 'latitud', value: 'latitud' },
+          { text: 'longitud', value: 'longitud' },
           { text: 'Acciones', value: 'actions', sortable: false },
         ],
-        users: [
-          { id: '1234567890', firstName: 'Juan', lastName: 'Pérez', birthDate: '1980-01-01', civilStatus: 'Casado' },
-          { id: '0987654321', firstName: 'Ana', lastName: 'Martínez', birthDate: '1990-02-02', civilStatus: 'Soltero' },
-        ],
+        users: [],
       };
     },
+
   };
   </script>

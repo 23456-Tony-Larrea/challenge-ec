@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 
 const RoleAndPermission = {
   getRolePermission(id) {
-    return http.get(`/role_permissions/${id}`).then((data) => {
+    return http.get(`/role-permissions/${id}`).then((data) => {
       return data.data.data;
     });
   },
@@ -12,7 +12,7 @@ const RoleAndPermission = {
       newState:newState
       }
       return http
-        .put(`/role_permissions/${idRole}/role/${idPermission}/permission`,body)
+        .put(`/role-permissions/${idRole}/permissions/${idPermission}`,body)
         .then((response) => {
           const updatedPermission = response.data.data;
           return updatedPermission; 

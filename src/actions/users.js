@@ -11,15 +11,39 @@ export default {
         return data.data;
       });
     },
-    createUser(users){
+   async createUser(users){
+      if (!users.email || !/.+@.+\..+/.test(users.email)) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error en la validación',
+          text: 'Por favor, introduce un correo electrónico válido.',
+        });
+      }
+
+      
+    
+      if (!users.latitud || !users.longitud) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error en la validación',
+          text: 'Por favor, selecciona una ubicación válida.',
+        });
+        return Promise.reject(new Error('Ubicación inválida'));
+      }
       let params = {
-        identity:users.identity,
         name: users.name,
         email: users.email,
-        role_id:users.role_id,
-        password:"123456"
+        password:"12345678",
+        cedula:users.cedula,
+        nombres:users.name,
+        apellidos:users.apellidos,
+        fecha_nacimiento:users.fecha_nacimiento,
+        estado_civil:users.estado_civil,
+        latitud:users.latitud.toString(),
+        longitud:users.longitud.toString(),
+        role_name:users.role_name,
       };
-      return http.post('/register', params).then((data) => {
+      return http.post('/users', params).then((data) => {
         Swal.fire({
           position: "center",
           icon: "success",
@@ -47,9 +71,14 @@ export default {
       let params = {
         name: users.name,
         email: users.email,
-        identity:users.identity,
-        id: users.id,
-        role_id:users.role_id
+        cedula:users.cedula,
+        nombres:users.name,
+        apellidos:users.apellidos,
+        fecha_nacimiento:users.fecha_nacimiento,
+        estado_civil:users.estado_civil,
+        latitud:users.latitud,
+        longitud:users.longitud,
+        role_name:users.role_name,
       };
       return http.put(`/users/${users.id}`, params).then((data) => {
         Swal.fire({
@@ -63,26 +92,25 @@ export default {
             return data.data.data;
       });
     },
-  
-    changeStateBool(id) {
+    deleteUser(id) {
       return Swal.fire({
-        title: '¿Estas seguro?',
+        title: '¿Estás seguro?',
         icon: 'warning',
-        text: 'No podras revertir esto!',
-        confirmButtonText: 'Si,Cambiar!',
+        text: 'No podrás revertir esto',
+        confirmButtonText: 'Sí, eliminar',
         showCancelButton: true,
       }).then((result) => {
         if (result.value) {
-          return http.put(`/usersBool/${id}`).then((data) => {
-            console.log(data);
+          return http.delete(`/users/${id}`).then((data) => {
             Swal.fire({
-              icon: 'success',
-              title: 'Eliminar!',
-              text: 'El usuario ha sido cambaido su estado con exito.',
+              position: "center",
+              icon: "success",
+              type: "success",
+              title: "Usuario eliminado correctamente",
               showConfirmButton: false,
-              timer: 1500
-            })
-            return data.data.data
+              timer: 1500,
+            });
+            return data.data;
           });
         } else if (result.dismiss === 'cancelar') {
           Swal.fire('Cancelado', 'El usuario no fue eliminado', 'error');
@@ -90,5 +118,9 @@ export default {
         }
       });
     },
-
+    showUserById(id) {
+      return http.get(`/users/${id}`).then((data) => {
+        return data.data;
+      });
+    },
     }
