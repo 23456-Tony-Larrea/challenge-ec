@@ -4,6 +4,7 @@ import Home from '../components/Home.vue'
 import MainPage from '../components/admin/Main-Page/main-page.vue'
 import RolePermissionsView from '../components/admin/roleAndPermissions/roleAndPermissions.vue'
 import UsersCrud from '../components/admin/Users/CrudUsersView.vue'
+import Poblacion from '../components/Poblacion/Poblacion.vue'
 
 const routes=[
     {
@@ -27,6 +28,11 @@ const routes=[
         name: 'users',
         component: UsersCrud
     },
+    {
+        path: '/poblacion',
+        name: 'poblacion',
+        component: Poblacion
+    }
 ]
 const router = createRouter({
     history: createWebHistory(),
