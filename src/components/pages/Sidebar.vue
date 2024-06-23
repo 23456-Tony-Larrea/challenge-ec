@@ -17,8 +17,8 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item>
-            <v-list-item-title>Cerrar sesión</v-list-item-title>
+          <v-list-item @click="logout()">
+            <v-list-item-title >Cerrar sesión</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -90,6 +90,10 @@ export default {
         (permission) => permission.name === name,
       );
       return permission && permission.state;
+    },
+    logout() {
+      localStorage.clear();
+      this.$router.push('/');
     },
   },
   computed: {
