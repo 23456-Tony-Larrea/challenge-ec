@@ -15,7 +15,7 @@ ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 export default {
   name: 'BarChart',
   components: { Bar },
-  props: ['data'], // Asume que los datos se pasan como prop al componente
+  props: ['data'],
   data() {
     return {
       chartData: {
@@ -23,15 +23,19 @@ export default {
         datasets: [
           {
             data: [],
-            backgroundColor: [], // Opcional: para colores de fondo de las barras
+            backgroundColor: [],
           }
         ]
       },
       chartOptions: {
         responsive: true,
         plugins: {
+          title: {
+            display: true,
+            text: 'Población por Provincia' // Título del gráfico
+          },
           legend: {
-            display: false // Oculta la leyenda si no la necesitas
+            display: false
           }
         }
       }
@@ -41,16 +45,23 @@ export default {
     this.processData(this.data);
   },
   methods: {
-    processData(data) {
-      const labels = data.map(item => `${item.Provincia} (${item.CodProvincia})`);
-      const datasetData = data.map(item => item.Poblacion);
-      // Opcional: Generar colores aleatorios para cada barra
-      const backgroundColors = data.map(() => `#${Math.floor(Math.random()*16777215).toString(16)}`);
+  processData(data) {
+    const labels = data.map(item => `${item.Provincia} (${item.CodProvincia})`);
+    const datasetData = data.map(item => item.Poblacion);
+    const backgroundColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+    const colors = data.map((_, index) => backgroundColors[index % backgroundColors.length]);
 
-      this.chartData.labels = labels;
-      this.chartData.datasets[0].data = datasetData;
-      this.chartData.datasets[0].backgroundColor = backgroundColors;
-    }
+    // Actualiza chartData de manera reactiva
+    this.chartData = {
+      labels: labels,
+      datasets: [
+        {
+          data: datasetData,
+          backgroundColor: colors,
+        }
+      ]
+    };
   }
+}
 }
 </script>

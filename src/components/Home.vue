@@ -66,6 +66,8 @@
   </template>
   <script>
   import { login } from '../actions/login';
+  import image from '../assets/logo.png'
+
 export default {
     name: 'HomeView',
   components: {
@@ -77,6 +79,7 @@ data: () => ({
     password: '',
     error:false,
     errorMessage:'',
+    image: image,
     emailRules: [
     v => !!v || 'El email es requerido',
     v => (v && v.length >= 3) || 'El email debe tener al menos 3 caracteres'

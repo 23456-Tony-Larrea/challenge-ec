@@ -18,9 +18,6 @@
         </template>
         <v-list>
           <v-list-item>
-            <v-list-item-title>Perfil</v-list-item-title>
-          </v-list-item>
-          <v-list-item>
             <v-list-item-title>Cerrar sesión</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -54,7 +51,7 @@
       </router-link>
     </v-list-item>
     <v-list-item>
-      <router-link to="/configuraciones" class="config-link"  v-if="isPermissionEnabled('modulo 2')">
+      <router-link to="/poblacion" class="config-link"  v-if="isPermissionEnabled('modulo 2')">
         <v-list-item-icon>
           <v-icon>mdi-view-dashboard</v-icon>
         </v-list-item-icon>
